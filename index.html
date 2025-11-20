@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chorizos Humberto | Premium</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <!-- NAVEGACIÓN -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo" onclick="irA('menu')">
+                <div class="logo-icon"><i data-lucide="flame"></i></div>
+                <div class="logo-text">
+                    <h1>Chorizos Humberto</h1>
+                    <small>Tradición Artesanal</small>
+                </div>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="btn-admin-link" onclick="abrirLoginAdmin()">
+                    <i data-lucide="lock" width="16"></i> <span>Admin</span>
+                </button>
+                <div class="divider-vertical"></div>
+                <button class="btn-icon" onclick="abrirCarrito()">
+                    <i data-lucide="shopping-cart"></i>
+                    <span id="burbuja-carrito" class="badge hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- VISTA CLIENTE -->
+    <main id="seccion-menu" class="container main-content fade-in">
+        <div class="hero">
+            <div class="hero-content">
+                <span class="tag-hero">¡Nuevo!</span>
+                <h2>Sabor Auténtico Santarrosano</h2>
+                <p>Preparados diariamente con ingredientes frescos. El sabor del campo en tu mesa.</p>
+                <button class="btn-hero" onclick="scrollToMenu()">Ver Menú <i data-lucide="chevron-down"></i></button>
+            </div>
+            <div class="hero-overlay"></div>
+        </div>
+
+        <div class="menu-header">
+            <h3 id="catalogo-titulo">Nuestro Menú</h3>
+            <div class="divider"></div>
+        </div>
+        
+        <div id="contenedor-productos" class="grid-productos">
+            <!-- Se llena con JS -->
+        </div>
+    </main>
+
+    <!-- VISTA ADMIN -->
+    <main id="seccion-admin" class="container main-content hidden fade-in">
+        <div class="admin-header">
+            <div>
+                <h2>Panel Administrativo</h2>
+                <p>Gestiona tus pedidos y productos</p>
+            </div>
+            <div class="admin-actions">
+                <button class="btn-secondary-outline" onclick="abrirGestorProductos()">
+                    <i data-lucide="package" width="16"></i> Productos
+                </button>
+                <button class="btn-danger-outline" onclick="confirmarBorrarHistorial()">
+                    <i data-lucide="trash-2" width="16"></i> Borrar Todo
+                </button>
+                <button class="btn-secondary" onclick="irA('menu')">
+                    <i data-lucide="log-out" width="16"></i> Salir
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Ingresos Totales</h3>
+                <p id="admin-total-ventas">$ 0</p>
+            </div>
+            <div class="stat-card highlight">
+                <h3>Pedidos Activos</h3>
+                <p id="admin-pedidos-activos">0</p>
+                <small style="color: #666; font-size: 0.8rem;">(Pendientes o Despachados)</small>
+            </div>
+        </div>
+
+        <h3 class="subtitle">Control de Despachos</h3>
+        <div id="lista-pedidos" class="lista-pedidos-grid">
+            <!-- Se llena con JS -->
+        </div>
+    </main>
+
+    <!-- MODAL CARRITO -->
+    <div id="modal-carrito" class="modal hidden">
+        <div class="modal-backdrop" onclick="cerrarCarrito()"></div>
+        <div class="modal-sidebar slide-in">
+            <div class="sidebar-header">
+                <h2>Tu Pedido</h2>
+                <button onclick="cerrarCarrito()" class="btn-close"><i data-lucide="x"></i></button>
+            </div>
+            <div id="lista-carrito" class="sidebar-body"></div>
+            <div id="footer-carrito" class="sidebar-footer hidden">
+                <div class="entrega-selector">
+                    <button id="btn-recoger" class="option active" onclick="cambiarEntrega('recoger')">
+                        <i data-lucide="store"></i> <span>Recoger</span>
+                    </button>
+                    <button id="btn-domicilio" class="option" onclick="cambiarEntrega('domicilio')">
+                        <i data-lucide="bike"></i> <span>Domicilio</span>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label>Tus Datos</label>
+                    <input type="text" id="input-nombre" placeholder="Nombre Completo" class="input-modern">
+                    <div id="campo-direccion" class="hidden fade-in">
+                        <input type="text" id="input-direccion" placeholder="Dirección de Entrega" class="input-modern mt-2">
+                    </div>
+                </div>
+                <div class="resumen-pago">
+                    <div class="linea"><span>Subtotal</span> <span id="txt-subtotal">$0</span></div>
+                    <div id="fila-domicilio" class="linea highlight hidden"><span>Domicilio</span> <span>$5.000</span></div>
+                    <div class="linea total"><span>Total</span> <span id="txt-total">$0</span></div>
+                </div>
+                <button class="btn-checkout" onclick="finalizarPedido()">Confirmar Pedido <i data-lucide="arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN ADMIN -->
+    <div id="modal-login" class="modal hidden">
+        <div class="modal-backdrop" onclick="cerrarLoginAdmin()"></div>
+        <div class="modal-card fade-in">
+            <div class="login-header">
+                <div class="lock-icon"><i data-lucide="shield-lock"></i></div>
+                <h3>Acceso Restringido</h3>
+                <p>Solo personal autorizado</p>
+            </div>
+            <div class="login-body">
+                <input type="password" id="admin-pass-input" placeholder="Ingresa la contraseña" class="input-modern text-center">
+                <p id="login-error" class="error-msg hidden">Contraseña incorrecta</p>
+            </div>
+            <div class="login-footer">
+                <button class="btn-secondary" onclick="cerrarLoginAdmin()">Cancelar</button>
+                <button class="btn-primary" onclick="verificarPassword()">Ingresar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RECIBO -->
+    <div id="modal-recibo" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card receipt-card fade-in">
+            <div class="receipt-header">
+                <div class="success-icon"><i data-lucide="check"></i></div>
+                <h3>¡Pedido Enviado!</h3>
+                <p>Gracias por tu compra</p>
+            </div>
+            <div id="contenido-recibo" class="receipt-body"></div>
+            <button class="btn-dark full-width" onclick="cerrarRecibo()">Entendido</button>
+        </div>
+    </div>
+
+    <!-- MODAL ALERTA PERSONALIZADA -->
+    <div id="modal-custom-alert" class="modal hidden" style="z-index: 999;">
+        <div class="modal-backdrop" style="background: rgba(0,0,0,0.8);"></div>
+        <div class="alert-card fade-in">
+            <h3 id="alert-title">Atención</h3>
+            <p id="alert-message">Mensaje de alerta</p>
+            <button onclick="cerrarAlertaCustom()" class="btn-alert-ok">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMACIÓN PERSONALIZADA -->
+    <div id="modal-custom-confirm" class="modal hidden" style="z-index: 1000;">
+        <div class="modal-backdrop" style="background: rgba(0,0,0,0.8);"></div>
+        <div class="alert-card fade-in">
+            <h3 id="confirm-title">Confirmar Acción</h3>
+            <p id="confirm-message">¿Estás seguro?</p>
+            <div class="confirm-actions">
+                <button class="btn-confirm-cancel" onclick="customConfirmCallback(false)">Cancelar</button>
+                <button class="btn-confirm-ok" onclick="customConfirmCallback(true)">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GESTOR PRODUCTOS -->
+    <div id="modal-gestor-productos" class="modal hidden" style="z-index: 900;">
+        <div class="modal-backdrop" onclick="cerrarGestorProductos()"></div>
+        <div class="modal-sidebar slide-in-left" style="left:0; right:auto; box-shadow: 10px 0 30px rgba(0,0,0,0.1);">
+            <div class="sidebar-header">
+                <h2>Gestión Productos</h2>
+                <button onclick="cerrarGestorProductos()" class="btn-close"><i data-lucide="x"></i></button>
+            </div>
+            <div class="sidebar-body">
+                <button class="btn-primary full-width mb-4" onclick="abrirFormularioProducto()">
+                    <i data-lucide="plus" width="16"></i> Nuevo Producto
+                </button>
+                <div id="lista-gestor-productos" class="lista-gestor">
+                    <!-- Lista productos editable -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FORMULARIO PRODUCTO -->
+    <div id="modal-form-producto" class="modal hidden" style="z-index: 950;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card fade-in">
+            <h3 id="form-producto-title" class="text-center mb-4">Producto</h3>
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="prod-nombre" class="input-modern">
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea id="prod-descripcion" class="input-modern" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Precio ($)</label>
+                <input type="number" id="prod-precio" class="input-modern">
+            </div>
+            <div class="form-group">
+                <label>URL Imagen</label>
+                <input type="text" id="prod-imagen" class="input-modern" placeholder="http://...">
+            </div>
+            <div class="login-footer">
+                <button class="btn-secondary" onclick="cerrarFormularioProducto()">Cancelar</button>
+                <button class="btn-primary" onclick="guardarProducto()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICACIÓN -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="scripts/script.js"></script>
+</body>
+</html>
