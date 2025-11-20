@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-
     <!-- NAVEGACIÓN -->
     <nav class="navbar">
         <div class="container nav-content">
@@ -20,6 +19,7 @@
                 </div>
             </div>
             
+            <!-- Botones Alineados Correctamente -->
             <div class="nav-actions">
                 <button class="btn-admin-link" onclick="abrirLoginAdmin()">
                     <i data-lucide="lock" width="16"></i> <span>Admin</span>
@@ -128,22 +128,21 @@
         </div>
     </div>
 
-    <!-- MODAL LOGIN ADMIN -->
+    <!-- MODAL LOGIN ADMIN (Diseño Blanco Restaurado) -->
     <div id="modal-login" class="modal hidden">
         <div class="modal-backdrop" onclick="cerrarLoginAdmin()"></div>
-        <div class="modal-card fade-in">
-            <div class="login-header">
-                <div class="lock-icon"><i data-lucide="shield-lock"></i></div>
-                <h3>Acceso Restringido</h3>
-                <p>Solo personal autorizado</p>
+        <div class="modal-card fade-in login-card-style">
+            <div class="login-header text-center">
+                <h3 style="font-size: 1.5rem; margin-bottom: 5px; color: #1c1917;">Acceso Restringido</h3>
+                <p style="color: #666;">Solo personal autorizado</p>
             </div>
-            <div class="login-body">
-                <input type="password" id="admin-pass-input" placeholder="Ingresa la contraseña" class="input-modern text-center">
-                <p id="login-error" class="error-msg hidden">Contraseña incorrecta</p>
+            <div class="login-body" style="margin: 25px 0;">
+                <input type="password" id="admin-pass-input" placeholder="••••••••" class="input-modern text-center" style="font-size: 1.2rem; letter-spacing: 2px;">
+                <p id="login-error" class="error-msg hidden text-center">Contraseña incorrecta</p>
             </div>
             <div class="login-footer">
                 <button class="btn-secondary" onclick="cerrarLoginAdmin()">Cancelar</button>
-                <button class="btn-primary" onclick="verificarPassword()">Ingresar</button>
+                <button class="btn-primary-orange" onclick="verificarPassword()">Ingresar</button>
             </div>
         </div>
     </div>
@@ -162,18 +161,20 @@
         </div>
     </div>
 
-    <!-- MODAL ALERTA PERSONALIZADA -->
-    <div id="modal-custom-alert" class="modal hidden" style="z-index: 999;">
+    <!-- MODAL ALERTA (Oscura) -->
+    <div id="modal-custom-alert" class="modal hidden" style="z-index: 1001;">
         <div class="modal-backdrop" style="background: rgba(0,0,0,0.8);"></div>
         <div class="alert-card fade-in">
             <h3 id="alert-title">Atención</h3>
             <p id="alert-message">Mensaje de alerta</p>
-            <button onclick="cerrarAlertaCustom()" class="btn-alert-ok">Aceptar</button>
+            <div class="text-right">
+                <button onclick="cerrarAlertaCustom()" class="btn-alert-ok">Aceptar</button>
+            </div>
         </div>
     </div>
 
-    <!-- MODAL CONFIRMACIÓN PERSONALIZADA -->
-    <div id="modal-custom-confirm" class="modal hidden" style="z-index: 1000;">
+    <!-- MODAL CONFIRMACIÓN (Oscura) -->
+    <div id="modal-custom-confirm" class="modal hidden" style="z-index: 1002;">
         <div class="modal-backdrop" style="background: rgba(0,0,0,0.8);"></div>
         <div class="alert-card fade-in">
             <h3 id="confirm-title">Confirmar Acción</h3>
@@ -194,7 +195,7 @@
                 <button onclick="cerrarGestorProductos()" class="btn-close"><i data-lucide="x"></i></button>
             </div>
             <div class="sidebar-body">
-                <button class="btn-primary full-width mb-4" onclick="abrirFormularioProducto()">
+                <button class="btn-primary-orange full-width mb-4" onclick="abrirFormularioProducto()">
                     <i data-lucide="plus" width="16"></i> Nuevo Producto
                 </button>
                 <div id="lista-gestor-productos" class="lista-gestor">
@@ -204,7 +205,7 @@
         </div>
     </div>
 
-    <!-- MODAL FORMULARIO PRODUCTO -->
+    <!-- MODAL FORMULARIO PRODUCTO (CON SUBIDA DE FOTO) -->
     <div id="modal-form-producto" class="modal hidden" style="z-index: 950;">
         <div class="modal-backdrop"></div>
         <div class="modal-card fade-in">
@@ -221,13 +222,27 @@
                 <label>Precio ($)</label>
                 <input type="number" id="prod-precio" class="input-modern">
             </div>
+            
+            <!-- NUEVO: INPUT DE ARCHIVO -->
             <div class="form-group">
-                <label>URL Imagen</label>
-                <input type="text" id="prod-imagen" class="input-modern" placeholder="http://...">
+                <label>Imagen del Producto</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="prod-imagen-input" class="input-file" accept="image/*">
+                    <div class="file-upload-ui">
+                        <i data-lucide="image-plus" class="mb-2"></i>
+                        <span>Clic para subir foto</span>
+                    </div>
+                </div>
+                <input type="hidden" id="prod-imagen-base64">
+                <div id="preview-container" class="mt-2 hidden text-center">
+                    <p style="font-size:0.8rem; margin-bottom:5px;">Vista Previa:</p>
+                    <img id="img-preview" src="" style="max-height:100px; border-radius:8px; margin:0 auto; border:1px solid #ddd;">
+                </div>
             </div>
+
             <div class="login-footer">
                 <button class="btn-secondary" onclick="cerrarFormularioProducto()">Cancelar</button>
-                <button class="btn-primary" onclick="guardarProducto()">Guardar</button>
+                <button class="btn-primary-orange" onclick="guardarProducto()">Guardar</button>
             </div>
         </div>
     </div>

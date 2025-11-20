@@ -1,8 +1,8 @@
 // --- BASE DE DATOS INICIAL ---
 const PRODUCTOS_DEFAULT = [
-    { id: 1, nombre: "Chorizo Santarrosano", descripcion: "El clásico. 100% cerdo seleccionado.", precio: 5000, img: "https://images.unsplash.com/photo-1595480205065-21739444a438?q=80&w=500" },
+    { id: 1, nombre: "Chorizo Santarrosano", descripcion: "El clásico. 100% cerdo seleccionado.", precio: 5000, img: "img/santarrosano.jpg" },
     { id: 2, nombre: "Chorizo Picante", descripcion: "Con chiles ahumados y especias.", precio: 6000, img: "https://images.unsplash.com/photo-1573689705887-bc0763c82eaa?q=80&w=500" },
-    { id: 3, nombre: "Picada Familiar", descripcion: "Para 4 personas. Chorizo, papa y arepa.", precio: 25000, img: "https://images.unsplash.com/photo-1514516872020-436ed3617d3c?q=80&w=500" },
+    { id: 3, nombre: "Picada Familiar", descripcion: "Para 4 personas. Chorizo, papa y arepa.", precio: 25000, img: "img/picada.jpg" },
     { id: 4, nombre: "Choripán Clásico", descripcion: "En baguette artesanal con chimichurri.", precio: 12000, img: "https://images.unsplash.com/photo-1625938145744-e38051539643?q=80&w=500" },
     { id: 5, nombre: "Arepa con Queso", descripcion: "Doble queso mozzarella fundido.", precio: 3000, img: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?q=80&w=500" },
     { id: 6, nombre: "Gaseosa 400ml", descripcion: "Coca-Cola, Manzana o Colombiana.", precio: 3500, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=500" }
@@ -12,21 +12,45 @@ const PRODUCTOS_DEFAULT = [
 let carrito = [];
 let esDomicilio = false;
 const COSTO_DOMICILIO = 5000;
-let confirmCallback = null; // Para el modal de confirmación
-let productoEditandoId = null; // Para saber si estamos editando o creando
+let confirmCallback = null;
+let productoEditandoId = null;
 
 // --- INICIO ---
 document.addEventListener('DOMContentLoaded', () => {
-    inicializarProductos(); // Cargar productos al inicio
+    inicializarProductos();
     renderizarProductos();
     if(window.lucide) lucide.createIcons();
     
-    document.getElementById('admin-pass-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') verificarPassword();
-    });
+    // Enter para login
+    const loginInput = document.getElementById('admin-pass-input');
+    if(loginInput) {
+        loginInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verificarPassword();
+        });
+    }
+
+    // Listener para subida de imágenes
+    const fileInput = document.getElementById('prod-imagen-input');
+    if(fileInput) fileInput.addEventListener('change', handleImageUpload);
 });
 
-// --- GESTIÓN DE DATOS (PRODUCTOS) ---
+// --- MANEJO DE IMAGEN (FILE READER) ---
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            document.getElementById('prod-imagen-base64').value = base64Image;
+            const preview = document.getElementById('img-preview');
+            preview.src = base64Image;
+            document.getElementById('preview-container').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// --- GESTIÓN DE DATOS (SIMULACIÓN PERSISTENCIA) ---
 function inicializarProductos() {
     const almacenados = localStorage.getItem('productos_db');
     if (!almacenados) {
@@ -40,7 +64,7 @@ function obtenerProductos() {
 
 function guardarProductosDB(productos) {
     localStorage.setItem('productos_db', JSON.stringify(productos));
-    renderizarProductos(); // Actualizar vista cliente
+    renderizarProductos();
 }
 
 function formatoDinero(valor) {
@@ -70,7 +94,7 @@ function renderizarProductos() {
     if(window.lucide) lucide.createIcons();
 }
 
-// --- CARRITO ---
+// --- CARRITO Y PEDIDOS ---
 function agregar(id) {
     const productos = obtenerProductos();
     const prod = productos.find(p => p.id === id);
@@ -99,8 +123,8 @@ function actualizarCant(id, delta) {
 
 function actualizarCarritoUI() {
     const lista = document.getElementById('lista-carrito');
-    const footer = document.getElementById('footer-carrito');
     const burbuja = document.getElementById('burbuja-carrito');
+    const footer = document.getElementById('footer-carrito');
     
     const totalItems = carrito.reduce((acc, el) => acc + el.cantidad, 0);
     burbuja.innerText = totalItems;
@@ -117,18 +141,18 @@ function actualizarCarritoUI() {
     } else {
         lista.innerHTML = carrito.map(item => `
             <div class="cart-item">
-                <img src="${item.img}" class="cart-img" onerror="this.src='https://via.placeholder.com/60?text=Img'">
+                <img src="${item.img}" class="cart-img" onerror="this.src='https://via.placeholder.com/60'">
                 <div class="cart-details">
                     <h4>${item.nombre}</h4>
                     <p class="cart-price">${formatoDinero(item.precio)}</p>
                     <div class="cart-actions">
                         <button class="qty-btn" onclick="actualizarCant(${item.id}, -1)">-</button>
-                        <span style="font-weight:bold; font-size:0.9rem; width:20px; text-align:center;">${item.cantidad}</span>
+                        <span>${item.cantidad}</span>
                         <button class="qty-btn" onclick="actualizarCant(${item.id}, 1)">+</button>
                     </div>
                 </div>
                 <div style="text-align:right;">
-                    <div style="font-weight:bold; margin-bottom:5px;">${formatoDinero(item.cantidad * item.precio)}</div>
+                    <div style="font-weight:bold;">${formatoDinero(item.cantidad * item.precio)}</div>
                     <button onclick="eliminar(${item.id})" style="border:none; background:none; color:#ef4444; cursor:pointer;"><i data-lucide="trash-2" width="16"></i></button>
                 </div>
             </div>
@@ -139,7 +163,6 @@ function actualizarCarritoUI() {
     calcularTotales();
 }
 
-// --- PAGO ---
 function cambiarEntrega(tipo) {
     esDomicilio = (tipo === 'domicilio');
     document.getElementById('btn-domicilio').classList.toggle('active', esDomicilio);
@@ -189,43 +212,14 @@ function finalizarPedido() {
     localStorage.setItem('pedidos_db', JSON.stringify(historial));
     
     mostrarRecibo(pedido);
-    
     carrito = [];
     document.getElementById('input-nombre').value = "";
     actualizarCarritoUI();
     cerrarCarrito();
 }
 
-function mostrarRecibo(pedido) {
-    const contenido = document.getElementById('contenido-recibo');
-    contenido.innerHTML = `
-        <div style="text-align:center; margin-bottom:20px; border-bottom:1px dashed #ccc; padding-bottom:10px;">
-            <h4 style="font-size:1.2rem; margin-bottom:5px;">${pedido.cliente}</h4>
-            <p style="color:#666; font-size:0.9rem;">${pedido.fecha}</p>
-        </div>
-        <div style="margin-bottom:20px;">
-            ${pedido.items.map(i => `
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem;">
-                    <span>${i.cantidad} x ${i.nombre}</span>
-                    <span>${formatoDinero(i.precio * i.cantidad)}</span>
-                </div>
-            `).join('')}
-             ${pedido.tipo === 'Domicilio' ? `<div style="display:flex; justify-content:space-between; color:#ea580c;"><span>Envío</span><span>${formatoDinero(5000)}</span></div>` : ''}
-        </div>
-        <div style="text-align:right; font-size:1.5rem; font-weight:800; color:#1c1917;">
-            ${formatoDinero(pedido.total)}
-        </div>
-    `;
-    document.getElementById('modal-recibo').classList.remove('hidden');
-}
-
-// --- ADMIN ---
-function abrirLoginAdmin() {
-    document.getElementById('modal-login').classList.remove('hidden');
-    document.getElementById('login-error').classList.add('hidden');
-    document.getElementById('admin-pass-input').value = '';
-    document.getElementById('admin-pass-input').focus();
-}
+// --- ADMIN Y GESTOR ---
+function abrirLoginAdmin() { document.getElementById('modal-login').classList.remove('hidden'); }
 function cerrarLoginAdmin() { document.getElementById('modal-login').classList.add('hidden'); }
 
 function verificarPassword() {
@@ -233,9 +227,7 @@ function verificarPassword() {
     if(pass === 'admin123') {
         cerrarLoginAdmin();
         mostrarAdmin();
-    } else {
-        document.getElementById('login-error').classList.remove('hidden');
-    }
+    } else document.getElementById('login-error').classList.remove('hidden');
 }
 
 function mostrarAdmin() {
@@ -246,6 +238,7 @@ function mostrarAdmin() {
     const historial = JSON.parse(localStorage.getItem('pedidos_db') || "[]").reverse();
     const lista = document.getElementById('lista-pedidos');
     
+    // Cálculo corregido de pedidos activos (No entregados)
     const pedidosActivos = historial.filter(p => p.estado !== 'Entregado').length;
     document.getElementById('admin-pedidos-activos').innerText = pedidosActivos;
     
@@ -296,7 +289,6 @@ function cambiarEstado(id, nuevoEstado) {
     }
 }
 
-// --- GESTIÓN DE PRODUCTOS (NUEVO) ---
 function abrirGestorProductos() {
     document.getElementById('modal-gestor-productos').classList.remove('hidden');
     renderizarListaGestor();
@@ -339,14 +331,14 @@ function abrirFormularioProducto(id = null) {
     const modal = document.getElementById('modal-form-producto');
     const title = document.getElementById('form-producto-title');
     
-    // Limpiar form
     document.getElementById('prod-nombre').value = '';
     document.getElementById('prod-descripcion').value = '';
     document.getElementById('prod-precio').value = '';
-    document.getElementById('prod-imagen').value = '';
+    document.getElementById('prod-imagen-input').value = '';
+    document.getElementById('prod-imagen-base64').value = '';
+    document.getElementById('preview-container').classList.add('hidden');
     
     if (id) {
-        // Modo Edición
         const productos = obtenerProductos();
         const prod = productos.find(p => p.id === id);
         if (prod) {
@@ -354,10 +346,13 @@ function abrirFormularioProducto(id = null) {
             document.getElementById('prod-nombre').value = prod.nombre;
             document.getElementById('prod-descripcion').value = prod.descripcion;
             document.getElementById('prod-precio').value = prod.precio;
-            document.getElementById('prod-imagen').value = prod.img;
+            if(prod.img) {
+                document.getElementById('prod-imagen-base64').value = prod.img;
+                document.getElementById('img-preview').src = prod.img;
+                document.getElementById('preview-container').classList.remove('hidden');
+            }
         }
     } else {
-        // Modo Creación
         title.innerText = "Nuevo Producto";
     }
     
@@ -372,7 +367,7 @@ function guardarProducto() {
     const nombre = document.getElementById('prod-nombre').value;
     const desc = document.getElementById('prod-descripcion').value;
     const precio = parseFloat(document.getElementById('prod-precio').value);
-    let img = document.getElementById('prod-imagen').value;
+    let img = document.getElementById('prod-imagen-base64').value;
     
     if(!nombre || !desc || isNaN(precio)) return mostrarAlerta("Completa los campos obligatorios.");
     if(!img) img = "https://via.placeholder.com/400x300?text=Sin+Imagen";
@@ -380,14 +375,12 @@ function guardarProducto() {
     let productos = obtenerProductos();
     
     if (productoEditandoId) {
-        // Actualizar
         const index = productos.findIndex(p => p.id === productoEditandoId);
         if (index !== -1) {
             productos[index] = { ...productos[index], nombre, descripcion: desc, precio, img };
         }
     } else {
-        // Crear
-        const nuevoId = Date.now(); // ID simple basado en tiempo
+        const nuevoId = Date.now();
         productos.push({ id: nuevoId, nombre, descripcion: desc, precio, img });
     }
     
@@ -409,7 +402,7 @@ function confirmarBorrarProducto(id) {
     });
 }
 
-// --- HELPERS Y MODALES CUSTOM ---
+// --- UI HELPERS ---
 function mostrarAlerta(mensaje, titulo = "Atención") {
     document.getElementById('alert-title').innerText = titulo;
     document.getElementById('alert-message').innerText = mensaje;
@@ -431,7 +424,7 @@ function customConfirmCallback(resultado) {
 }
 
 function confirmarBorrarHistorial() {
-    mostrarConfirmacion("¿Borrar todo el historial de pedidos?", (confirmado) => {
+    mostrarConfirmacion("¿Borrar todo el historial de ventas?", (confirmado) => {
         if (confirmado) {
             localStorage.removeItem('pedidos_db');
             mostrarAdmin();
@@ -447,12 +440,34 @@ function mostrarNotificacion(mensaje) {
     toast.innerHTML = `<i data-lucide="check-circle" color="#16a34a" width="20"></i> <span>${mensaje}</span>`;
     container.appendChild(toast);
     if(window.lucide) lucide.createIcons();
-
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(20px)';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
+}
+
+function mostrarRecibo(pedido) {
+    const contenido = document.getElementById('contenido-recibo');
+    contenido.innerHTML = `
+        <div style="text-align:center; margin-bottom:20px; border-bottom:1px dashed #ccc; padding-bottom:10px;">
+            <h4 style="font-size:1.2rem; margin-bottom:5px;">${pedido.cliente}</h4>
+            <p style="color:#666; font-size:0.9rem;">${pedido.fecha}</p>
+        </div>
+        <div style="margin-bottom:20px;">
+            ${pedido.items.map(i => `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.95rem;">
+                    <span>${i.cantidad} x ${i.nombre}</span>
+                    <span>${formatoDinero(i.precio * i.cantidad)}</span>
+                </div>
+            `).join('')}
+             ${pedido.tipo === 'Domicilio' ? `<div style="display:flex; justify-content:space-between; color:#ea580c;"><span>Envío</span><span>${formatoDinero(5000)}</span></div>` : ''}
+        </div>
+        <div style="text-align:right; font-size:1.5rem; font-weight:800; color:#1c1917;">
+            ${formatoDinero(pedido.total)}
+        </div>
+    `;
+    document.getElementById('modal-recibo').classList.remove('hidden');
 }
 
 function abrirCarrito() { document.getElementById('modal-carrito').classList.remove('hidden'); }
